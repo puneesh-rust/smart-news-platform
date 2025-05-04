@@ -1,0 +1,844 @@
+
+/* 
+/* General Styles */
+
+
+/* 
+/* General Styles */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: rgb(255, 255, 255);
+  color: #212529;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dark-mode {
+  background-color: rgb(34, 5, 88); /* Dark background */
+  color: rgb(254, 253, 246); /* White text */
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: rgb(31, 50, 69);
+  color: #fff;
+}
+
+.dark-mode .app-header {
+  background-color: #1e1e1e; /* Darker background for header */
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  
+  margin-right: 10px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-button, .today-button, .sign-out-button, .eye-button, .category-filter {
+  padding: 5px 10px;
+  background-color: #fff;
+  color: rgb(1, 3, 4);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .toggle-button,
+.dark-mode .today-button,
+.dark-mode .sign-out-button,
+.dark-mode .eye-button {
+  background-color: rgb(245, 240, 240); /* Dark background for buttons */
+  color: rgb(14, 14, 14); /* White text for buttons */
+}
+
+.toggle-button:hover, .today-button:hover, .sign-out-button:hover, .eye-button:hover {
+  background-color: #0056b3;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.category-filter {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.dark-mode .category-filter, .dark-mode .date-filter {
+  background-color: #333333; /* Dark background for date filter */
+  color: #ffffff; /* White text for date filter */
+  border-color: #555555; /* Dark border for date filter */
+}
+
+.category-filter:focus, .date-filter:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Main Content */
+.main-content {
+  padding: 20px;
+}
+
+/* Selected date display styling */
+.selected-date-display {
+  display: flex;
+  flex-direction: column;
+  align-items: right;
+  margin-bottom: 10px;
+  text-align: right;
+}
+
+.selected-date-display h2 {
+  margin-bottom: 15px;
+}
+
+.today-button {
+  background-color:black;
+  color:white;
+  margin: 0 auto 10px auto;
+  width: auto;
+  padding: 8px 15px;
+  font-weight: bold;
+}
+
+/* Calendar centered styles */
+.centered-calendar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0 20px 0;
+}
+
+/* Calendar styling similar to FotMob */
+.modern-calendar {
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: auto !important;
+  max-width: 400px;
+  background-color: #222;
+  color: #fff;
+}
+
+/* Calendar tile styling */
+.calendar-tile {
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+
+.selected-tile {
+  background-color: #007bff !important;
+  color: rgb(11, 250, 15) !important;
+}
+
+.dark-mode .selected-tile {
+  background-color: #4caf50 !important;
+}
+
+/* React Calendar overrides */
+.react-calendar {
+  border: none;
+}
+
+.dark-mode .react-calendar {
+  background-color: #222;
+  color: #fff;
+}
+
+.react-calendar__navigation button {
+  color: rgb(255, 0, 0);
+}
+
+.dark-mode .react-calendar__navigation button {
+  color: rgb(255, 0, 0);
+}
+
+.react-calendar__month-view__weekdays {
+  font-weight: bold;
+}
+
+.dark-mode .react-calendar__month-view__weekdays {
+  color: #4caf50;
+}
+
+.react-calendar__tile--active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.dark-mode .react-calendar__tile--active {
+  background-color: #4caf50;
+}
+
+.load-more-container {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.load-more-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.load-more-button:hover {
+  background-color: #45a049;
+}
+
+.load-more-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* News container in row layout */
+.news-container {
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.news-item {
+  background-color:rgb(0, 0, 0);
+  color : #ffffff;
+  padding: 20px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(47, 45, 128, 0.73);
+  animation: fadeIn 0.5s ease-in-out;
+  width: calc(33.333% - 20px);
+  min-width: 300px;
+  flex-grow: 1;
+}
+
+.dark-mode .news-item {
+  background-color: #1e1e1e; /* Dark background for news items */
+  color: #ffffff; /* White text for news items */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Make the news items responsive */
+@media (max-width: 992px) {
+  .news-item {
+    width: calc(50% - 20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .news-item {
+    width: 100%;
+  }
+}
+
+/* Enhance the category tag styling */
+.category-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Category tags based on how they're being rendered in the App.js */
+/* Original categories from dropdown: "Business", "Politics", "World Affairs", "Science" */
+/* These get converted to lowercase with spaces replaced by hyphens */
+
+.category-tag.business {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.category-tag.politics {
+  background-color: #e91e63;
+  color: #fff;
+}
+
+.category-tag.world-affairs {
+  background-color: #9c27b0;
+  color: #fff;
+}
+
+.category-tag.science {
+  background-color: #2196f3;
+  color: #fff;
+}
+
+/* Additional category tags from your screenshot */
+.category-tag.sports {
+  background-color: #ff9800; 
+  color: #fff;
+}
+
+.category-tag.world {
+  background-color: #9c27b0;
+  color: #fff;
+}
+
+/* Improve the read more link */
+.news-item a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .news-item a {
+  color: #4caf50;
+}
+
+.news-item a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.dark-mode .news-item a:hover {
+  color: #3d8b40;
+}
+
+/* Auth Container */
+.auth-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.dark-mode .auth-container {
+  background-color: #1e1e1e; /* Dark background for auth container */
+  color: #ffffff; /* White text for auth container */
+}
+
+.auth-container h2 {
+  margin-bottom: 20px;
+  color: #007bff;
+}
+
+.dark-mode .auth-container h2 {
+  color: #4caf50; /* Green color for auth container heading */
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.dark-mode .auth-input {
+  background-color: #333333; /* Dark background for input fields */
+  color: #ffffff; /* White text for input fields */
+  border-color: #555555; /* Dark border for input fields */
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .auth-button {
+  background-color: #4caf50; /* Green background for buttons */
+  color: #ffffff; /* White text for buttons */
+}
+
+.auth-button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.auth-switch {
+  margin-top: 15px;
+  color: #6c757d;
+}
+
+.dark-mode .auth-switch {
+  color: #ffffff; /* White text for auth switch */
+}
+
+.auth-switch span {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.dark-mode .auth-switch span {
+  color: #4caf50; /* Green color for auth switch text */
+}
+
+.auth-error {
+  color: #dc3545;
+  margin-bottom: 15px;
+}
+
+/* Loading and error states */
+.loading, .error, .no-news {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+}
+
+.loading {
+  color: #007bff;
+}
+
+.dark-mode .loading {
+  color: #4caf50;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.no-news {
+  color: #6c757d;
+}
+
+.dark-mode .no-news {
+  color: #adb5bd;
+}
+
+/* Loading spinner */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  width: 100%;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #007bff;
+  animation: spin 1s linear infinite;
+  margin-top: 15px;
+}
+
+.dark-mode .loading-spinner {
+  border-left-color: #4caf50;
+}
+/* Pagination styles */
+.pagination-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 30px 0 15px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 5px;
+}
+
+.pagination-button, .pagination-number {
+  padding: 8px 12px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.dark-mode .pagination-button, 
+.dark-mode .pagination-number {
+  background-color: #2d2d2d;
+  color: #ffffff;
+  border-color: #555;
+}
+
+.pagination-button:hover:not(:disabled), 
+.pagination-number:hover:not(:disabled) {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.dark-mode .pagination-button:hover:not(:disabled), 
+.dark-mode .pagination-number:hover:not(:disabled) {
+  background-color: #4caf50;
+}
+
+.pagination-button:disabled, 
+.pagination-number:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-number.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.dark-mode .pagination-number.active {
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+.pagination-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.dark-mode .pagination-ellipsis {
+  color: #adb5bd;
+}
+
+.page-info {
+  color: #6c757d;
+  font-size: 14px;
+  text-align: center;
+}
+
+.dark-mode .page-info {
+  color: #adb5bd;
+}
+
+/* Items per page filter */
+.items-per-page-filter {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.dark-mode .items-per-page-filter {
+  background-color: #333333;
+  color: #ffffff;
+  border-color: #555555;
+}
+
+.items-per-page-filter:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Responsive styles for pagination */
+@media (max-width: 576px) {
+  .pagination-container {
+    flex-wrap: wrap;
+  }
+  
+  .pagination-button, .pagination-number {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .pagination-ellipsis {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* No news container styling */
+.no-news-container {
+  text-align: center;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.dark-mode .no-news-container {
+  background-color: #2d2d2d;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  background-color:rgb(31, 50, 69);
+  color: #fff;
+  margin-top: auto;
+}
+
+.dark-mode footer {
+  background-color: #1e1e1e; /* Dark background for footer */
+  color: #ffffff; /* White text for footer */
+}
+
+.footer-icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.footer-icons img {
+  width: 30px;
+  height: 30px;
+}
+
+/* Marquee Styling */
+
+/* Add these CSS styles to your App.css or create a new Marquee.css file */
+
+.marquee-container {
+  background-color:rgb(255, 255, 255);
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .marquee-container {
+  background-color: #2a2a2a;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.marquee-label {
+  background-color: #e63946;
+  color: white;
+  font-weight: bold;
+  padding: 5px 10px;
+  margin-right: 15px;
+  border-radius: 3px;
+  z-index: 2;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.marquee-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: marquee 40s linear infinite;
+}
+
+.marquee-container.paused .marquee-content {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-item {
+  display: inline-block;
+  margin-right: 40px;
+  font-size: 14px;
+}
+
+.marquee-title {
+  font-weight: 500;
+}
+
+.marquee-category {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin: 0 8px;
+  font-weight: 600;
+}
+
+.marquee-category.business {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.marquee-category.politics {
+  background-color: #2196F3;
+  color: white;
+}
+
+.marquee-category.world-affairs {
+  background-color: #9C27B0;
+  color: white;
+}
+
+.marquee-category.science {
+  background-color: #FF9800;
+  color: white;
+}
+
+.marquee-link {
+  color: #e63946;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.dark-mode .marquee-link {
+  color: #ff7b86;
+}
+
+.marquee-link:hover {
+  text-decoration: underline;
+  color: #c1121f;
+}
+
+.marquee-separator {
+  margin: 0 10px;
+  color: #999;
+}
+
+/* Add these styles to enhance the current filter UI */
+.active-filters {
+  display: flex;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  background-color:rgb(193, 29, 29);
+  padding: 6px 12px;
+  border-radius: 16px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.dark-mode .filter-chip {
+  background-color: #3a3a3a;
+}
+
+.clear-filter {
+  background: none;
+  border: none;
+  color: #666;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.clear-filter:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Link button styling */
+.link-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s;
+}
+
+.link-button:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-buttons {
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .logo {
+    margin-bottom: 10px;
+  }
+  
+  .news-container {
+    padding: 0 10px;
+  }
+}
