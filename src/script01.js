@@ -1,164 +1,6 @@
-
-// import admin from "firebase-admin";
-// import puppeteer from 'puppeteer';
-// import serviceAccount from "./firebase-service-account.json" with { type: "json" };
-// import fs from "fs";
-// import path from "path";
-
-// // Initialize Firebase
-// admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-// });
-
-// const db = admin.firestore();
-// const collection = db.collection('headlines');
-
-// // Utility function to clean and parse date
-// function parseHinduDate(rawDateText) {
-//     if (!rawDateText) return null;
-    
-//     // Clean the date string
-//     const cleanedDate = rawDateText
-//         .replace(/^[-\s]*(Published|Updated)?[-\s]*/i, "")
-//         .replace(/\s*IST\s*.*$/, "")
-//         .trim();
-    
-//     const parsedDate = new Date(cleanedDate);
-//     return isNaN(parsedDate.getTime()) ? null : parsedDate;
-// }
-
-// async function scrapeSection(page, url, category) {
-//     console.log(`🌐 Scraping ${category} section from ${url}`);
-    
-//     try {
-//         await page.goto(url, { 
-//             timeout: 60000,
-//             waitUntil: 'networkidle2' 
-//         });
-
-//         await page.waitForSelector('.element', { timeout: 15000 });
-
-//         const articles = await page.$$eval(".element", (nodes) =>
-//             nodes.map((el) => {
-//                 const anchor = el.querySelector("h3.title.big > a");
-//                 return anchor ? {
-//                     title: anchor.textContent.trim(),
-//                     link: anchor.href,
-//                 } : null;
-//             }).filter(Boolean)
-//         );
-
-//         console.log(`📰 Found ${articles.length} articles in ${category} section`);
-//         return articles;
-//     } catch (err) {
-//         console.error(`⚠ Error scraping ${category} section:`, err.message);
-//         return [];
-//     }
-// }
-
-// async function scrapeArticle(page, article, category) {
-//     try {
-//         await page.goto(article.link, { 
-//             timeout: 60000,
-//             waitUntil: 'domcontentloaded' 
-//         });
-
-//         await page.waitForSelector('h1.title', { timeout: 10000 });
-
-//         const [description, rawDateText] = await Promise.all([
-//             page.$eval("h2.sub-title", el => el.textContent.trim()).catch(() => ""),
-//             page.$eval(".publish-time-new span, .updated-time span", el => el.textContent.trim()).catch(() => "")
-//         ]);
-
-//         const parsedDate = parseHinduDate(rawDateText);
-//         if (!parsedDate) {
-//             console.warn(`❌ Invalid date for article: ${article.title}`);
-//             return null;
-//         }
-
-//         const newsData = {
-//             title: article.title,
-//             link: article.link,
-//             date: parsedDate.toISOString(),
-//             category,
-//             description
-//         };
-
-//         // Add to Firestore
-//         await collection.add({
-//             ...newsData,
-//             date: admin.firestore.Timestamp.fromDate(parsedDate)
-//         });
-
-//         console.log(`✅ Saved: ${article.title}`);
-//         return newsData;
-//     } catch (err) {
-//         console.error(`⚠ Error scraping article ${article.link}:`, err.message);
-//         return null;
-//     }
-// }
-
-// async function delay(ms) {
-//     return new Promise(resolve => setTimeout(resolve, ms));
-// }
-
-// async function scrapeHinduSection(url, category) {
-//     const browser = await puppeteer.launch({ 
-//         headless: true,
-//         defaultViewport: null,
-//         args: ['--no-sandbox', '--disable-setuid-sandbox']
-//     });
-    
-//     const page = await browser.newPage();
-    
-//     // Configure page settings
-//     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-//     await page.setDefaultNavigationTimeout(60000);
-
-//     try {
-//         const articles = await scrapeSection(page, url, category);
-//         const scrapedData = [];
-
-//         for (const article of articles) {
-//             const result = await scrapeArticle(page, article, category);
-//             if (result) scrapedData.push(result);
-            
-//             // Add delay between requests using traditional setTimeout
-//             await delay(2000); // 2 second delay
-//         }
-
-//         // Save to JSON file
-//         const outputDir = path.join('./output');
-//         if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
-
-//         const filePath = path.join(outputDir, `${category.toLowerCase().replace(/\s+/g, '-')}-news.json`);
-//         fs.writeFileSync(filePath, JSON.stringify(scrapedData, null, 2));
-//         console.log(`📝 Saved ${scrapedData.length} articles to ${filePath}`);
-
-//     } catch (err) {
-//         console.error("❌ Main scraping error:", err);
-//     } finally {
-//         await browser.close();
-//         console.log(`🏁 Completed scraping for ${category}`);
-//     }
-// }
-
-// (async () => {
-//     try {
-//         await scrapeHinduSection("https://www.thehindu.com/news/international/", "World Affairs");
-//         await scrapeHinduSection("https://www.thehindu.com/sci-tech/science/", "Science");
-//     } catch (err) {
-//         console.error("❌ Fatal error in main execution:", err);
-//     }
-// })();
-
-
-
 import admin from "firebase-admin";
 import puppeteer from 'puppeteer';
-import serviceAccount from "./firebase-service-account 02.json" with { type: "json" };
-import fs from "fs";
-import path from "path";
+import serviceAccount from "./firebaseServiceAccount.json" with { type: "json" };
 
 // Initialize Firebase
 admin.initializeApp({
@@ -172,7 +14,6 @@ const collection = db.collection('headlines');
 function parseHinduDate(rawDateText) {
     if (!rawDateText) return null;
     
-    // Clean the date string
     const cleanedDate = rawDateText
         .replace(/^[-\s]*(Published|Updated)?[-\s]*/i, "")
         .replace(/\s*IST\s*.*$/, "")
@@ -182,101 +23,181 @@ function parseHinduDate(rawDateText) {
     return isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
-// Generic delay function
-async function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+// Enhanced delay function with exponential backoff
+async function delay(ms, attempt = 1) {
+    const jitter = Math.random() * 3000;
+    const backoff = Math.pow(2, attempt) * 1000;
+    const totalDelay = ms + jitter + backoff;
+    console.log(`⏳ Waiting ${Math.round(totalDelay/1000)} seconds...`);
+    return new Promise(resolve => setTimeout(resolve, totalDelay));
 }
 
-// Function to check if article already exists in Firestore
+// Improved article existence check
 async function isArticleExists(article) {
     try {
-        // Check by title
-        const titleQuery = await collection
-            .where('title', '==', article.title)
-            .limit(1)
-            .get();
-        
-        if (!titleQuery.empty) return true;
-        
-        // Check by link
-        const linkQuery = await collection
+        const querySnapshot = await collection
             .where('link', '==', article.link)
             .limit(1)
             .get();
-            
-        return !linkQuery.empty;
+        return !querySnapshot.empty;
     } catch (err) {
         console.error('Error checking for duplicates:', err);
-        // If there's an error checking, we'll assume it doesn't exist to avoid missing articles
         return false;
     }
 }
 
-// Function to scrape individual article from The Hindu
+// Request interception setup/cleanup
+async function setupRequestInterception(page) {
+    await page.setRequestInterception(true);
+    
+    const requestHandler = async (request) => {
+        try {
+            if (['image', 'stylesheet', 'font', 'media', 'script'].includes(request.resourceType())) {
+                await request.abort();
+            } else {
+                await request.continue();
+            }
+        } catch (err) {
+            if (!err.message.includes('already handled') && !err.message.includes('Interception is not enabled')) {
+                console.log('Request error:', err.message);
+            }
+        }
+    };
+    
+    page.on('request', requestHandler);
+    return requestHandler;
+}
+
+async function cleanupRequestInterception(page, requestHandler) {
+    if (requestHandler) {
+        page.off('request', requestHandler);
+    }
+    await page.setRequestInterception(false).catch(() => {});
+}
+
+// Robust article scraping with proper request handling
 async function scrapeHinduArticle(page, article, category) {
-    try {
-        await page.goto(article.link, { 
-            timeout: 60000,
-            waitUntil: 'domcontentloaded' 
-        });
+    const MAX_ATTEMPTS = 3;
+    let attempt = 0;
+    let requestHandler;
+    
+    while (attempt < MAX_ATTEMPTS) {
+        try {
+            console.log(`📄 Scraping article (attempt ${attempt + 1}): ${article.title}`);
+            
+            // Clear cookies and cache
+            const client = await page.target().createCDPSession();
+            await client.send('Network.clearBrowserCookies');
+            await client.send('Network.clearBrowserCache');
+            await page.evaluate(() => {
+                localStorage.clear();
+                sessionStorage.clear();
+            });
 
-        // Wait for either the title or a timeout
-        await Promise.race([
-            page.waitForSelector('h1.title', { timeout: 10000 }),
-            page.waitForSelector('h1', { timeout: 10000 }) // Fallback selector
-        ]);
+            // Setup request interception
+            requestHandler = await setupRequestInterception(page);
 
-        const [description, rawDateText] = await Promise.all([
-            page.$eval("h2.sub-title, .sub-headline, [itemprop='description']", el => el.textContent.trim()).catch(() => ""),
-            page.$eval(".publish-time-new span, .updated-time span, time, [datetime]", el => {
-                return el.textContent.trim() || el.getAttribute('datetime') || '';
-            }).catch(() => "")
-        ]);
+            console.log(`🌐 Loading URL: ${article.link}`);
+            const response = await page.goto(article.link, { 
+                timeout: 120000,
+                waitUntil: ['domcontentloaded', 'networkidle2']
+            });
+            
+            console.log(`Status: ${response?.status()}`);
+            if (!response || !response.ok()) {
+                throw new Error(`HTTP ${response?.status() || 'no response'} for ${article.link}`);
+            }
 
-        const parsedDate = parseHinduDate(rawDateText);
-        if (!parsedDate) {
-            console.warn(`❌ Invalid date for article: ${article.title}`);
-            return null;
+            // Check for paywalls
+            const isPaywalled = await page.$('.paywall, .subscription-required, .premium-block').catch(() => false);
+            if (isPaywalled) {
+                console.log('🔒 Article is paywalled, skipping');
+                return null;
+            }
+
+            // Wait for content with multiple fallbacks
+            await Promise.race([
+                page.waitForSelector('article', { timeout: 15000 }).catch(() => {}),
+                page.waitForSelector('.articlebodycontent', { timeout: 15000 }).catch(() => {}),
+                page.waitForSelector('[itemprop="articleBody"]', { timeout: 15000 }).catch(() => {}),
+                page.waitForSelector('.articlepage', { timeout: 15000 }).catch(() => {}),
+                page.waitForSelector('.content-body', { timeout: 15000 }).catch(() => {}),
+                page.waitForSelector('h1.title', { timeout: 15000 }).catch(() => {}),
+                delay(5000)
+            ]);
+
+            // Extract data with comprehensive fallbacks
+            const title = await page.evaluate(() => {
+                return document.querySelector('h1.title, h1.headline, [itemprop="headline"]')?.textContent.trim() || 
+                       document.title.replace(' - The Hindu', '');
+            });
+
+            const description = await page.evaluate(() => {
+                return document.querySelector('h2.sub-title, .sub-headline, [itemprop="description"]')?.textContent.trim() ||
+                       document.querySelector('meta[property="og:description"]')?.content ||
+                       document.querySelector('meta[name="description"]')?.content ||
+                       '';
+            });
+
+            const rawDateText = await page.evaluate(() => {
+                return document.querySelector(".publish-time-new span, .updated-time span")?.textContent.trim() ||
+                       document.querySelector("time[datetime], [datetime]")?.getAttribute('datetime') ||
+                       document.querySelector(".date")?.textContent.trim() ||
+                       '';
+            });
+
+            const parsedDate = parseHinduDate(rawDateText);
+            if (!parsedDate) {
+                console.warn(`❌ Invalid date for article: ${title}`);
+                return null;
+            }
+            
+            const newsData = {
+                title,
+                link: article.link,
+                date: parsedDate.toISOString(),
+                category,
+                description,
+                source: "The Hindu"
+            };
+            
+            if (await isArticleExists(newsData)) {
+                console.log(`⏩ Skipping duplicate article: ${title}`);
+                return null;
+            }
+
+            // Save to Firestore
+            await collection.add({
+                ...newsData,
+                date: admin.firestore.Timestamp.fromDate(parsedDate),
+                scrapedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            console.log(`✅ Saved: ${title}`);
+            return newsData;
+            
+        } catch (err) {
+            attempt++;
+            console.error(`⚠ Attempt ${attempt} failed for article ${article.title}:`, err.message);
+            
+            if (attempt >= MAX_ATTEMPTS) {
+                console.error(`❌ All attempts failed for article: ${article.title}`);
+                return null;
+            }
+            
+            await delay(5000, attempt);
+        } finally {
+            await cleanupRequestInterception(page, requestHandler);
         }
-        
-        const newsData = {
-            title: article.title,
-            link: article.link,
-            date: parsedDate.toISOString(),
-            category,
-            description,
-            source: "The Hindu"
-        };
-        
-        // Check if article already exists
-        if (await isArticleExists(newsData)) {
-            console.log(`⏩ Skipping duplicate article: ${article.title}`);
-            return null;
-        }
-
-        // Add to Firestore
-        await collection.add({
-            ...newsData,
-            date: admin.firestore.Timestamp.fromDate(parsedDate),
-            scrapedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
-
-        console.log(`✅ Saved: ${article.title}`);
-        return newsData;
-    } catch (err) {
-        console.error(`⚠ Error scraping article ${article.link}:`, err.message);
-        return null;
     }
 }
 
-/**
- * Scrape The Hindu website with pagination
- */
+// Main scraping function with enhanced reliability
 async function scrapeHinduWithPagination(baseUrl, category, maxPages = 5) {
-    console.log(`🌐 Starting to scrape ${category} section from The Hindu with pagination`);
+    console.log(`🌐 Starting to scrape ${category} section from The Hindu`);
     
     const browser = await puppeteer.launch({ 
-        headless: true,
+        headless: "new",
         defaultViewport: null,
         args: [
             '--no-sandbox',
@@ -291,143 +212,142 @@ async function scrapeHinduWithPagination(baseUrl, category, maxPages = 5) {
     });
     
     const page = await browser.newPage();
-    
-    // Configure page settings
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-    await page.setDefaultNavigationTimeout(60000);
-    await page.setJavaScriptEnabled(true);
-    await page.setExtraHTTPHeaders({
-        'Accept-Language': 'en-US,en;q=0.9'
-    });
+    await page.setDefaultNavigationTimeout(150000);
 
-    const allScrapedData = [];
-    
     try {
         for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
             const pageUrl = pageNum === 1 ? baseUrl : `${baseUrl}page/${pageNum}/`;
-            console.log(`📄 Processing page ${pageNum}/${maxPages}: ${pageUrl}`);
+            console.log(`\n📄 Processing page ${pageNum}/${maxPages}: ${pageUrl}`);
             
             let retryCount = 0;
             const maxRetries = 3;
             let success = false;
+            let requestHandler;
 
             while (retryCount < maxRetries && !success) {
                 try {
-                    await page.goto(pageUrl, { 
-                        timeout: 60000,
+                    // Clear cookies and cache
+                    const client = await page.target().createCDPSession();
+                    await client.send('Network.clearBrowserCookies');
+                    await client.send('Network.clearBrowserCache');
+                    
+                    // Setup request interception
+                    requestHandler = await setupRequestInterception(page);
+
+                    const response = await page.goto(pageUrl, { 
+                        timeout: 120000,
                         waitUntil: 'networkidle2' 
                     });
 
-                    // Check if the page exists
-                    const is404 = await page.$('.error-404, .page-not-found').catch(() => null);
+                    // Check for 404 or empty results
+                    const is404 = await page.$('.error-404, .page-not-found, .no-results').catch(() => null);
                     if (is404) {
                         console.log(`🛑 Reached end of pagination at page ${pageNum}`);
                         break;
                     }
 
-                    // Try multiple selectors for articles
-                    const selectorsToTry = [
-                        '.element',
-                        '.story-card',
-                        '.article',
-                        '[data-testid="article-element"]',
-                        'div[itemprop="articleBody"]',
-                        'section.story'
-                    ];
-
-                    let articles = [];
-                    for (const selector of selectorsToTry) {
-                        try {
-                            await page.waitForSelector(selector, { timeout: 5000 });
-                            articles = await page.$$eval(selector, (nodes) =>
-                                nodes.map((el) => {
-                                    const anchor = el.querySelector("h3.title.big > a, h2 > a, h3 > a, a.title");
-                                    return anchor ? {
-                                        title: anchor.textContent.trim(),
-                                        link: anchor.href,
-                                    } : null;
-                                }).filter(Boolean)
-                            );
-                            if (articles.length > 0) break;
-                        } catch (e) {
-                            continue;
-                        }
-                    }
+                    // Find articles with robust selectors
+                    const articles = await page.evaluate(() => {
+                        return Array.from(document.querySelectorAll(
+                            'article.story, .story-card, .element, [data-testid="article-element"], .story'
+                        )).map(el => {
+                            const anchor = el.querySelector("h3 a, h2 a, h1 a, a.title, .story-link");
+                            if (!anchor) return null;
+                            
+                            const title = anchor.textContent.trim();
+                            let link = anchor.href;
+                            
+                            // Ensure absolute URLs
+                            if (!link.startsWith('http')) {
+                                link = `https://www.thehindu.com${link.startsWith('/') ? '' : '/'}${link}`;
+                            }
+                            
+                            return { title, link };
+                        }).filter(Boolean);
+                    });
 
                     if (articles.length === 0) {
-                        console.log(`⚠ No articles found on page ${pageNum} with any selector`);
-                        // Take screenshot for debugging
-                        await page.screenshot({ path: `debug-page-${pageNum}.png` });
+                        console.log(`⚠ No articles found on page ${pageNum}`);
                         throw new Error('No articles found');
                     }
 
-                    console.log(`📰 Found ${articles.length} articles on page ${pageNum}`);
+                    console.log(`📰 Found ${articles.length} articles`);
                     
-                    // Process each article
+                    // Process articles with error isolation
                     for (const article of articles) {
-                        const result = await scrapeHinduArticle(page, article, category);
-                        if (result) allScrapedData.push(result);
-                        
-                        // Add delay between requests to be polite
-                        await delay(2000 + Math.random() * 1000); // Random delay between 2-3 seconds
+                        try {
+                            await scrapeHinduArticle(page, article, category);
+                            await delay(3000);
+                        } catch (err) {
+                            console.error(`⚠ Error processing article, continuing to next:`, err.message);
+                            continue;
+                        }
                     }
                     
                     success = true;
                     
                 } catch (err) {
                     retryCount++;
-                    console.error(`⚠ Attempt ${retryCount} failed for page ${pageNum}:`, err.message);
+                    console.error(`⚠ Page attempt ${retryCount} failed:`, err.message);
+                    
                     if (retryCount < maxRetries) {
-                        await delay(5000); // Wait 5 seconds before retry
-                    } else {
-                        console.error(`❌ All retries failed for page ${pageNum}`);
+                        await delay(10000, retryCount);
                     }
+                } finally {
+                    await cleanupRequestInterception(page, requestHandler);
                 }
             }
             
-            // Add delay between pages
-            await delay(3000 + Math.random() * 2000); // Random delay between 3-5 seconds
+            await delay(5000);
         }
 
-        // Save all data to JSON file
-        const outputDir = path.join('./output');
-        if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-        const filePath = path.join(outputDir, `${category.toLowerCase().replace(/\s+/g, '-')}-news.json`);
-        fs.writeFileSync(filePath, JSON.stringify(allScrapedData, null, 2));
-        console.log(`📝 Saved ${allScrapedData.length} articles to ${filePath}`);
+        console.log(`\n🏁 Completed scraping for ${category} from The Hindu`);
 
     } catch (err) {
-        console.error("❌ Main scraping error:", err);
+        console.error("\n❌ Fatal scraping error:", err);
     } finally {
-        await browser.close();
-        console.log(`🏁 Completed scraping for ${category} from The Hindu`);
+        // Final cleanup
+        try {
+            await page.close();
+            await browser.close();
+        } catch (cleanupErr) {
+            console.error("Error during cleanup:", cleanupErr);
+        }
     }
-    
-    return allScrapedData;
 }
 
 // Main execution
 (async () => {
     try {
-        // Configure the number of pages to scrape per section
         const MAX_PAGES = 5;
+        const sections = [
+            {
+                url: "https://www.thehindu.com/news/international/",
+                category: "World Affairs"
+            },
+            // {
+            //     url: "https://www.thehindu.com/sci-tech/science/",
+            //     category: "Science"
+            // }
+        ];
         
-        // Scrape The Hindu website with error handling for each section
-        try {
-            await scrapeHinduWithPagination("https://www.thehindu.com/news/international/", "World Affairs", MAX_PAGES);
-        } catch (err) {
-            console.error("❌ Error scraping World Affairs:", err);
+        console.log("🚀 Starting The Hindu scraper");
+        
+        for (const section of sections) {
+            try {
+                console.log(`\n=== Starting ${section.category} Section ===`);
+                await scrapeHinduWithPagination(section.url, section.category, MAX_PAGES);
+            } catch (err) {
+                console.error(`\n❌ Section ${section.category} failed:`, err);
+                continue;
+            }
         }
         
-        try {
-            await scrapeHinduWithPagination("https://www.thehindu.com/sci-tech/science/", "Science", MAX_PAGES);
-        } catch (err) {
-            console.error("❌ Error scraping Science:", err);
-        }
-        
-        console.log('🎉 All scraping tasks completed');
+        console.log('\n🎉 All scraping tasks completed successfully');
+        process.exit(0);
     } catch (err) {
-        console.error("❌ Fatal error in main execution:", err);
+        console.error("\n❌ Fatal error in main execution:", err);
+        process.exit(1);
     }
 })();

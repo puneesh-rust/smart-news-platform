@@ -1,151 +1,11 @@
 
-// import admin from 'firebase-admin';
-// import puppeteer from 'puppeteer';
-// import serviceAccount from "./firebase-service-account.json" with { type: "json" };
-// import fs from 'fs';
-// import path from 'path';
-
-// // Initialize Firebase
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
-
-// const db = admin.firestore();
-// const collection = db.collection('headlines');
-
-// // Utility function to clean and parse date
-// function parseIndianExpressDate(rawDate) {
-//   if (!rawDate) return null;
-  
-//   // Remove IST and any trailing text
-//   const cleanedDate = rawDate.replace(/ IST.*$/, '').trim();
-//   const parsedDate = new Date(cleanedDate);
-  
-//   return isNaN(parsedDate.getTime()) ? null : parsedDate;
-// }
-
-// async function scrapeSection(url, category) {
-//   console.log(`🌐 Starting to scrape ${category} section from ${url}`);
-  
-//   const browser = await puppeteer.launch({ 
-//     headless: true,  // Changed to true for better performance
-//     defaultViewport: null,
-//     args: ['--no-sandbox', '--disable-setuid-sandbox']
-//   });
-  
-//   const page = await browser.newPage();
-  
-//   try {
-//     // Configure page settings
-//     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-//     await page.setDefaultNavigationTimeout(60000);
-
-//     // Navigate to the section page
-//     await page.goto(url, { 
-//       waitUntil: 'networkidle2',
-//       timeout: 60000 
-//     });
-
-//     // Wait for articles to load
-//     await page.waitForSelector('.articles', { timeout: 15000 });
-
-//     // Get all article elements
-//     const articleHandles = await page.$$('.articles');
-//     console.log(`📰 Found ${articleHandles.length} articles in ${category} section`);
-
-//     const scrapedData = [];
-
-//     // Process each article
-//     for (const [index, el] of articleHandles.entries()) {
-//       try {
-//         console.log(`🔍 Processing article ${index + 1}/${articleHandles.length}`);
-        
-//         // Extract article data
-//         const [title, link, rawDate, description] = await Promise.all([
-//           el.$eval('.img-context > h2.title > a', a => a.textContent.trim()).catch(() => ''),
-//           el.$eval('.img-context > h2.title > a', a => a.href).catch(() => ''),
-//           el.$eval('.date', d => d.textContent.trim()).catch(() => ''),
-//           el.$eval('.img-context > p', p => p.textContent.trim()).catch(() => '')
-//         ]);
-
-//         // Validate required fields
-//         if (!title || !link) {
-//           console.warn('⚠ Skipping article - missing title or link');
-//           continue;
-//         }
-
-//         // Parse date
-//         const parsedDate = parseIndianExpressDate(rawDate);
-//         if (!parsedDate) {
-//           console.warn(`❌ Invalid date for article: ${title}`);
-//           continue;
-//         }
-
-//         // Prepare data for Firestore
-//         const newsData = {
-//           title,
-//           link,
-//           date: admin.firestore.Timestamp.fromDate(parsedDate),
-//           category,
-//           description,
-//           scrapedAt: admin.firestore.FieldValue.serverTimestamp()
-//         };
-
-//         // Save to Firestore
-//         await collection.add(newsData);
-//         scrapedData.push({
-//           ...newsData,
-//           date: parsedDate.toISOString()
-//         });
-
-//         console.log(`✅ Saved: ${title}`);
-
-//         // Add small delay between articles to be polite
-//         if (index < articleHandles.length - 1) {
-//           await new Promise(resolve => setTimeout(resolve, 1000));
-//         }
-
-//       } catch (error) {
-//         console.error(`⚠ Error processing article ${index + 1}:`, error.message);
-//         continue;
-//       }
-//     }
-
-//     // Save to JSON file
-//     const outputDir = path.join('./output');
-//     if (!fs.existsSync(outputDir)) {
-//       fs.mkdirSync(outputDir, { recursive: true });
-//     }
-
-//     const filePath = path.join(outputDir, `${category.toLowerCase().replace(/\s+/g, '-')}-news.json`);
-//     fs.writeFileSync(filePath, JSON.stringify(scrapedData, null, 2));
-//     console.log(`📝 Saved ${scrapedData.length} articles to ${filePath}`);
-
-//   } catch (err) {
-//     console.error('❌ Scraping failed:', err.message);
-//   } finally {
-//     await browser.close();
-//     console.log(`🏁 Finished scraping ${category} section`);
-//   }
-// }
-
-// (async () => {
-//   try {
-//     await scrapeSection('https://indianexpress.com/section/business/', 'Business');
-//     await scrapeSection('https://indianexpress.com/section/political-pulse/', 'Politics');
-//     console.log('🎉 All scraping completed successfully');
-//   } catch (err) {
-//     console.error('❌ Fatal error in main execution:', err.message);
-//     process.exit(1);
-//   }
-// })();
 
 
 import admin from 'firebase-admin';
 import puppeteer from 'puppeteer';
-import serviceAccount from "./firebase-service-account 02.json" with { type: "json" };
+import serviceAccount from "./firebaseServiceAccount.json" with { type: "json" };
 
-// Initialize Firebase
+// Firebase initialization step 1
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -153,7 +13,7 @@ admin.initializeApp({
 const db = admin.firestore();
 const collection = db.collection('headlines');
 
-// Utility function to clean and parse date for Indian Express
+//  clean and parse date for Indian Express(utility)
 function parseIndianExpressDate(rawDate) {
   if (!rawDate) return null;
   
@@ -405,16 +265,16 @@ async function trySelectors(element, selectors, attribute) {
 // Main execution with better error handling
 (async () => {
   try {
-    const MAX_PAGES = 5;
+    const MAX_PAGES = 10;
     const sections = [
-      // {
-      //   url: 'https://indianexpress.com/section/business/',
-      //   category: 'Business'
-      // },
       {
-        url: 'https://indianexpress.com/section/political-pulse/',
-        category: 'Politics'
-      }
+        url: 'https://indianexpress.com/section/business/',
+        category: 'Business'
+      },
+      // {
+      //   url: 'https://indianexpress.com/section/political-pulse/',
+      //   category: 'Politics'
+      // }
     ];
     
     // Process each section separately with individual error handling
