@@ -1,11 +1,17 @@
 from fastapi import FastAPI
-from routes import auth, headlines
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from routes import headlines, recommend
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-app.include_router(auth.router)
-app.include_router(headlines.router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-def home():
-    return {"message": "News API running 🚀"}
+app.include_router(headlines.router)
+app.include_router(recommend.router)

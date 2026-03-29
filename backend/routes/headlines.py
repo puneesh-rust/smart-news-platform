@@ -8,18 +8,21 @@ from models.headline import HeadlineResponse
 router = APIRouter(prefix="/headlines", tags=["Headlines"])
 
 @router.get("/", response_model=list[HeadlineResponse])
-def get_headlines(
-    date: Optional[str] = None,
-    category: Optional[str] = None
-):
+def get_headlines(date: Optional[str] = None, category: Optional[str] = None):
+
     conn = get_connection()
     cur = conn.cursor()
 
-    query = "SELECT id, title, link, date, category, description, source FROM headlines WHERE 1=1"
+    query = """
+    SELECT id, title, link, date, category, description, source
+    FROM headlines
+    WHERE 1=1
+    """
+
     params = []
 
     if date:
-        query += " AND DATE(date) = %s"
+        query += " AND DATE(date AT TIME ZONE 'Asia/Kolkata') = %s"
         params.append(date)
 
     if category:

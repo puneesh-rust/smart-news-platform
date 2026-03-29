@@ -8,15 +8,12 @@ puppeteer.use(StealthPlugin());
 
 const { Pool } = pkg;
 
-/* ================= DATABASE ================= */
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URI,
   ssl: { rejectUnauthorized: false },
 });
 
-// Test DB connection
-(async () => {
+async function testDB() {
   try {
     await pool.query("SELECT 1");
     console.log("✅ Database connected");
@@ -24,38 +21,28 @@ const pool = new Pool({
     console.error("❌ Database connection failed:", err);
     process.exit(1);
   }
-})();
-
-/* ================= UTILITIES ================= */
-
-function parseIndianExpressDate(rawDate) {
-  if (!rawDate) return null;
-  const cleanedDate = rawDate.replace(/ IST.*$/, "").trim();
-  const parsedDate = new Date(cleanedDate);
-  return isNaN(parsedDate.getTime()) ? null : parsedDate;
 }
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/* ================= SAVE TO SUPABASE ================= */
-
 async function saveArticle(article) {
   const { title, link, date, category, description, source } = article;
-
-  await pool.query(
-    `INSERT INTO headlines (title, link, date, category, description, source)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     ON CONFLICT (link) DO NOTHING`,
-    [title, link, date, category, description, source]
-  );
+  try {
+    await pool.query(
+      `INSERT INTO headlines (title, link, date, category, description, source)
+       VALUES ($1,$2,$3,$4,$5,$6)
+       ON CONFLICT (link) DO NOTHING`,
+      [title, link, date, category, description, source]
+    );
+  } catch (err) {
+    console.error("DB insert error:", err.message);
+  }
 }
 
-/* ================= SCRAPER ================= */
-
-async function scrapeIndianExpress(baseUrl, category, maxPages = 5) {
-  console.log(`🌐 Scraping ${category} section`);
+async function scrapeIndianExpress(baseUrl, category, maxPages = 1) {
+  console.log(`🌐 Scraping ${category}`);
 
   const browser = await puppeteer.launch({
     headless: "new",
@@ -63,24 +50,16 @@ async function scrapeIndianExpress(baseUrl, category, maxPages = 5) {
   });
 
   const page = await browser.newPage();
-
   await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
   );
 
   try {
     for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-      const url =
-        pageNum === 1 ? baseUrl : `${baseUrl}page/${pageNum}/`;
-
+      const url = pageNum === 1 ? baseUrl : `${baseUrl}page/${pageNum}/`;
       console.log(`📄 Page ${pageNum}: ${url}`);
 
-      await page.goto(url, {
-        waitUntil: "networkidle2",
-        timeout: 60000,
-      });
-
-      // Wait for titles instead of unstable div selectors
+      await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
       await page.waitForSelector("h2 a", { timeout: 20000 });
 
       const articles = await page.$$eval("h2 a", (links) =>
@@ -93,54 +72,85 @@ async function scrapeIndianExpress(baseUrl, category, maxPages = 5) {
       console.log(`📰 Found ${articles.length} articles`);
 
       for (const item of articles) {
-        try {
-          if (!item.title || !item.link) continue;
+        if (!item.title || !item.link) continue;
 
-          const newsData = {
+        try {
+          const articlePage = await browser.newPage();
+          await articlePage.goto(item.link, {
+            waitUntil: "domcontentloaded",
+            timeout: 60000,
+          });
+
+          const metadata = await articlePage.evaluate(() => {
+            const dateMeta = document.querySelector(
+              'meta[property="article:published_time"]'
+            );
+            const descMeta = document.querySelector('meta[name="description"]');
+            return {
+              publishDate: dateMeta ? dateMeta.content : null,
+              description: descMeta ? descMeta.content : "",
+            };
+          });
+
+          await articlePage.close();
+
+          const publishDate = metadata.publishDate
+            ? new Date(metadata.publishDate).toISOString()
+            : new Date().toISOString();
+
+          await saveArticle({
             title: item.title,
             link: item.link,
-            date: new Date().toISOString(),
+            date: publishDate,
             category,
-            description: "",
+            description: metadata.description,
             source: "Indian Express",
-          };
+          });
 
-          await saveArticle(newsData);
           console.log(`✅ Saved: ${item.title}`);
-
-          await delay(1000);
         } catch (err) {
-          console.error("⚠ Error saving article:", err.message);
+          console.log("⚠️ Article scrape error:", err.message);
         }
+
+        await delay(1000);
       }
 
       await delay(3000);
     }
-
-    console.log(`🏁 Finished scraping ${category}`);
   } catch (err) {
     console.error("❌ Scraping error:", err.message);
   } finally {
     await browser.close();
   }
+
+  console.log(`🏁 Finished ${category}`);
 }
 
-/* ================= MAIN ================= */
+async function main() {
+  await testDB();
 
-(async () => {
-  try {
-    await scrapeIndianExpress(
-      "https://indianexpress.com/section/sports/",
-      "Sports",
-      5
-      
-    );
+  // ✅ FIXED: URLs now match their correct categories
+  const sections = [
+    {
+      url: "https://indianexpress.com/section/business/",
+      category: "Business",
+    },
+    {
+      url: "https://indianexpress.com/section/world/",
+      category: "World Affairs",
+    },
+    {
+      url: "https://indianexpress.com/section/sports/",
+      category: "Sports",
+    },
+  ];
 
-    console.log("🎉 Scraping completed");
-  } catch (err) {
-    console.error("❌ Fatal error:", err);
-  } finally {
-    await pool.end();
-    process.exit(0);
+  for (const section of sections) {
+    await scrapeIndianExpress(section.url, section.category, 2);
   }
-})();
+
+  await pool.end();
+  console.log("🎉 All scraping completed");
+}
+
+main();
