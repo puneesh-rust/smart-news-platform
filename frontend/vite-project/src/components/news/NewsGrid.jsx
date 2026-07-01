@@ -1,8 +1,22 @@
 import NewsCard from "./NewsCard";
 
-const NewsGrid = ({ newsList, toggleReadLater, fetchRecommendations, isReadLater }) => {
+const NewsGrid = ({
+  newsList,
+  toggleReadLater,
+  fetchRecommendations,
+  isReadLater,
+}) => {
   return (
-    <div className="news-grid">
+    <div
+      className="
+        grid
+        grid-cols-1
+        md:grid-cols-2
+        xl:grid-cols-3
+        gap-5
+        mb-8
+      "
+    >
       {newsList.map((news, i) => (
         <NewsCard
           key={i}
@@ -12,7 +26,6 @@ const NewsGrid = ({ newsList, toggleReadLater, fetchRecommendations, isReadLater
           isSaved={isReadLater(news.title)}
         />
       ))}
-      
     </div>
   );
 };

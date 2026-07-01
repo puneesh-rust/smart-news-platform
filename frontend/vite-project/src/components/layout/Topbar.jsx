@@ -1,29 +1,39 @@
 import React from "react";
+import { Moon, Sun, Bookmark } from "lucide-react";
 
-const TopBar = ({ formattedDate, darkMode, toggleDarkMode, showReadLater, setShowReadLater, readLater }) => {
+const TopBar = ({
+  darkMode,
+  toggleDarkMode,
+  showReadLater,
+  setShowReadLater,
+  readLater,
+}) => {
   return (
-    <div className="top-bar">
-      <span className="top-bar-date">{formattedDate}</span>
-      <span className="top-bar-tagline">Your Daily Intelligence Briefing</span>
+    <>
+      {/* Dark Mode */}
+      <button
+        onClick={toggleDarkMode}
+        className="ghost-btn"
+      >
+        {darkMode ? <Sun size={13} /> : <Moon size={13} />}
+        {darkMode ? "Light" : "Dark"}
+      </button>
 
-      <div className="top-bar-right">
-        {/* DARK MODE */}
-        <button className="ghost-btn" onClick={toggleDarkMode}>
-          {darkMode ? "Light" : "Dark"}
-        </button>
+      <div style={{ width: "1px", height: "16px", background: "rgba(255,255,255,0.15)" }} />
 
-        {/* SAVED */}
-        <button
-          className={`ghost-btn ${showReadLater ? "ghost-btn-active" : ""}`}
-          onClick={() => setShowReadLater((p) => !p)}
-        >
-          Saved
-          {readLater.length > 0 && (
-            <span className="saved-badge">{readLater.length}</span>
-          )}
-        </button>
-      </div>
-    </div>
+      {/* Saved */}
+      <button
+        onClick={() => setShowReadLater((p) => !p)}
+        className={`ghost-btn ${showReadLater ? "ghost-btn-active" : ""}`}
+        style={{ position: "relative" }}
+      >
+        <Bookmark size={13} />
+        Saved
+        {readLater.length > 0 && (
+          <span className="saved-badge">{readLater.length}</span>
+        )}
+      </button>
+    </>
   );
 };
 

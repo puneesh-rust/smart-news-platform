@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./App.css";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import CatCursor from "../src/components/ui/CatCursor";
 
-// 🔹 Components
 import TopBar from "./components/layout/TopBar";
 import Masthead from "./components/layout/Masthead";
 import Footer from "./components/layout/Footer";
@@ -13,131 +14,105 @@ import ErrorState from "./components/ui/ErrorState";
 import EmptyState from "./components/ui/EmptyState";
 import Pagination from "./components/Pagination";
 
-// 🔹 Hooks
 import { useNews } from "./hooks/useNews";
-
-// 🔹 Helpers
 import {
-  formatFullDate,
-  filterNews,
-  paginate,
-  getTotalPages,
-  toggleReadLaterHelper,
-  isReadLaterHelper,
+  formatFullDate, filterNews, paginate,
+  getTotalPages, toggleReadLaterHelper, isReadLaterHelper,
 } from "./utils/helpers";
 
-// 🔹 Hardcoded API URL — change this if your backend runs on a different port
 const API_BASE = "http://127.0.0.1:8000";
 
 function App() {
-  // 📌 States
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
-  const [darkMode, setDarkMode] = useState(
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) navigate("/");
+  }, []);
+
+  const [selectedDate, setSelectedDate]         = useState(new Date());
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchQuery, setSearchQuery]           = useState("");
+  const [darkMode, setDarkMode]                 = useState(
     localStorage.getItem("darkMode") === "true"
   );
+  const [showCalendar, setShowCalendar]         = useState(false);
+  const [currentPage, setCurrentPage]           = useState(1);
+  const [itemsPerPage]                          = useState(6);
+  const [readLater, setReadLater]               = useState([]);
+  const [showReadLater, setShowReadLater]       = useState(false);
+  const [recommendedNews, setRecommendedNews]   = useState([]);
+  const [selectedTitle, setSelectedTitle]       = useState(null);
+  const activeTitleRef                          = useRef(null);
 
-  const [showCalendar, setShowCalendar] = useState(false);
+  const { newsHeadlines, isLoading, error } = useNews(selectedDate, selectedCategory);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);
-
-  const [readLater, setReadLater] = useState([]);
-  const [showReadLater, setShowReadLater] = useState(false);
-
-  const [recommendedNews, setRecommendedNews] = useState([]);
-  const [selectedTitle, setSelectedTitle] = useState(null);
-
-  // ✅ useRef to avoid stale closure bug in fetchRecommendations
-  const activeTitleRef = useRef(null);
-
-  // 📡 Custom Hook
-  const { newsHeadlines, isLoading, error } = useNews(
-    selectedDate,
-    selectedCategory
-  );
-
-  // 🌙 Dark Mode Effect
+  // ✅ Dark mode — App.css uses body.dark-mode class
   useEffect(() => {
     localStorage.setItem("darkMode", darkMode);
     document.body.classList.toggle("dark-mode", darkMode);
   }, [darkMode]);
 
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, selectedCategory]);
 
-  // ✅ Reset to page 1 on filter/search change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
-
-  // 🔍 Filter
   const filteredHeadlines = filterNews(newsHeadlines, searchQuery);
+  const currentItems      = paginate(filteredHeadlines, currentPage, itemsPerPage);
+  const totalPages        = getTotalPages(filteredHeadlines.length, itemsPerPage);
+  const displayedNews     = showReadLater ? readLater : currentItems;
+  const formattedDate     = formatFullDate(selectedDate);
 
-  // 📄 Pagination
-  const currentItems = paginate(filteredHeadlines, currentPage, itemsPerPage);
-  const totalPages = getTotalPages(filteredHeadlines.length, itemsPerPage);
+  const toggleReadLater = (news) => setReadLater((prev) => toggleReadLaterHelper(prev, news));
+  const isReadLater     = (title) => isReadLaterHelper(readLater, title);
 
-  // ⭐ Read Later
-  const toggleReadLater = (news) => {
-    setReadLater((prev) => toggleReadLaterHelper(prev, news));
-  };
-
-  const isReadLater = (title) => isReadLaterHelper(readLater, title);
-
-  const displayedNews = showReadLater ? readLater : currentItems;
-
-  // 📅 Date
-  const formattedDate = formatFullDate(selectedDate);
-
-  // 🔁 Pagination Change
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    document
-      .querySelector(".news-grid")
-      ?.scrollIntoView({ behavior: "smooth" });
+    document.querySelector(".news-grid")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // 🤖 Recommendation API
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+
   const fetchRecommendations = async (title) => {
-    // ✅ Ref-based guard — prevents duplicate API calls
     if (activeTitleRef.current === title) return;
     activeTitleRef.current = title;
-
     try {
-      const res = await fetch(
-        `${API_BASE}/recommend/?title=${encodeURIComponent(title)}`
-      );
-
-      if (!res.ok) {
-        console.error(`Recommendation API error: ${res.status} ${res.statusText}`);
-        setRecommendedNews([]);
-        return;
-      }
-
-      const data = await res.json();
+      const res  = await fetch(`${API_BASE}/recommend/?title=${encodeURIComponent(title)}`);
+      const data = res.ok ? await res.json() : [];
       setRecommendedNews(data);
       setSelectedTitle(title);
-    } catch (err) {
-      console.error("Failed to fetch recommendations:", err);
+    } catch {
       setRecommendedNews([]);
     }
   };
 
   return (
     <div className="app-root">
-      {/* 🔝 Top Bar */}
-      <TopBar
-        formattedDate={formattedDate}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        showReadLater={showReadLater}
-        setShowReadLater={setShowReadLater}
-        readLater={readLater}
-      />
+       <CatCursor />
 
-      {/* 📰 Masthead */}
+      {/* ✅ TOP BAR — TopBar + Logout ek saath */}
+      <div className="top-bar">
+        <span className="top-bar-tagline">Your Daily Intelligence Briefing</span>
+        <div className="top-bar-right">
+          <TopBar
+            darkMode={darkMode}
+            toggleDarkMode={() => setDarkMode(p => !p)}
+            showReadLater={showReadLater}
+            setShowReadLater={setShowReadLater}
+            readLater={readLater}
+          />
+          <button
+            onClick={handleLogout}
+            className="ghost-btn"
+            style={{ color: "#f87171", borderColor: "rgba(248,113,113,0.3)" }}
+          >
+            <LogOut size={13} />
+            Logout
+          </button>
+        </div>
+      </div>
+
       <Masthead
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -147,7 +122,6 @@ function App() {
         setShowCalendar={setShowCalendar}
       />
 
-      {/* 📅 Calendar */}
       <CalendarDrawer
         showCalendar={showCalendar}
         setShowCalendar={setShowCalendar}
@@ -155,24 +129,16 @@ function App() {
         setSelectedDate={setSelectedDate}
       />
 
-      {/* 📄 Main Content */}
       <main className="main-content">
-        {/* SECTION LABEL */}
         <div className="section-label">
           <span>
-            {showReadLater
-              ? "Saved Articles"
-              : selectedCategory
-              ? selectedCategory.toUpperCase()
-              : "TOP STORIES"}
+            {showReadLater ? "Saved Articles" : selectedCategory ? selectedCategory.toUpperCase() : "TOP STORIES"}
           </span>
           <span className="section-count">
-            {showReadLater ? readLater.length : filteredHeadlines.length}{" "}
-            articles
+            {showReadLater ? readLater.length : filteredHeadlines.length} articles
           </span>
         </div>
 
-        {/* STATES */}
         {isLoading ? (
           <Loader />
         ) : error ? (
@@ -187,7 +153,6 @@ function App() {
               fetchRecommendations={fetchRecommendations}
               isReadLater={isReadLater}
             />
-
             {!showReadLater && filteredHeadlines.length > itemsPerPage && (
               <Pagination
                 currentPage={currentPage}
@@ -198,14 +163,12 @@ function App() {
           </>
         )}
 
-        {/* 🤖 Recommendations */}
         <RecommendationSection
           recommendedNews={recommendedNews}
           selectedTitle={selectedTitle}
         />
       </main>
 
-      {/* 🔻 Footer */}
       <Footer />
     </div>
   );

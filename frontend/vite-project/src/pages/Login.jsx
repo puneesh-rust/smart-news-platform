@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import CatCursor from "../components/ui/CatCursor";
 
 function Login() {
 
@@ -40,16 +41,14 @@ function Login() {
         }
       )
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token)
+      // ✅ Fix — access_token check karo
+      if (response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token)
+        navigate("/news")  // ✅ token milte hi redirect
       }
 
       setUsername("")
       setPassword("")
-
-      if (response.data.statusCode === 200) {
-        navigate("/news")
-      }
 
     } catch (error) {
       console.log("Error logging in", error)
@@ -59,6 +58,7 @@ function Login() {
   }
 
   return (
+    <><CatCursor />
     <div className="min-h-screen w-full flex items-center justify-center bg-[#060d1f] overflow-hidden relative px-4 sm:px-6 py-10">
 
       <Toaster position="top-center" />
@@ -255,7 +255,7 @@ function Login() {
         </div>
 
       </div>
-    </div>
+    </div></>
   )
 }
 

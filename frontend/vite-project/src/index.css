@@ -1,3 +1,6 @@
+@import "tailwindcss";
+
+
 /* Global reset — ensures the React root fills the full viewport */
 *, *::before, *::after {
   margin: 0;
@@ -22,3 +25,4 @@ body {
   display: flex;
   flex-direction: column;
 }
+

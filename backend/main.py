@@ -1,7 +1,5 @@
 from fastapi import FastAPI
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from routes import headlines, recommend
+from routes import headlines, recommend, auth
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -15,3 +13,4 @@ app.add_middleware(
 
 app.include_router(headlines.router)
 app.include_router(recommend.router)
+app.include_router(auth.router, prefix="/api/v1/users")  # ✅ prefix add kiya

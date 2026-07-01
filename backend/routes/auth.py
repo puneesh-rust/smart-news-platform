@@ -63,3 +63,4 @@ def login(user: LoginUser):
     token = create_token({"user_id": db_user[0]})
 
     return {"access_token": token, "token_type": "bearer"}
+     

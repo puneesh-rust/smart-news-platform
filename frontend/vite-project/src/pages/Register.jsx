@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
 import axios from 'axios'
+import CatCursor from "../components/ui/CatCursor";
 
 function Register() {
 
@@ -55,6 +56,7 @@ function Register() {
   }
 
   return (
+    <>   <CatCursor />
     <div className="min-h-screen w-full flex items-center justify-center bg-[#060d1f] overflow-hidden relative px-6">
 
       <Toaster position="top-center" />
@@ -269,7 +271,7 @@ function Register() {
         </div>
 
       </div>
-    </div>
+    </div></>
   )
 }
 

@@ -1,12 +1,12 @@
-// export default Home
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Typewriter from "typewriter-effect";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
 import bg from "../assest/6th.jpg";
-// home page cards 
+import CatCursor from "../components/ui/CatCursor";
+
 const featureCards = [
   {
     icon: "⚡",
@@ -32,6 +32,8 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
+    <>
+    <CatCursor />
     <div
       style={{ backgroundImage: `url(${bg})` }}
       className="relative min-h-screen w-full bg-cover bg-center overflow-hidden"
@@ -47,10 +49,11 @@ export default function Home() {
       <div className="relative z-10 flex flex-col min-h-screen">
 
         {/* Navbar */}
-        <nav className="flex items-center justify-between ml-5 px-8 md:px-12 py-6">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-wide">
-            News<span className="text-cyan-400">App</span>
-          </h1>
+<nav className="flex items-center justify-between ml-5 px-8 md:px-12 py-6">
+  <h1 className="text-8xl md:text-6xl font-extrabold text-white tracking-wide">
+    News<span className="text-cyan-400">App</span>
+  </h1>
+
 
           <div className="flex gap-3 mr-12">
             <Button
@@ -74,6 +77,8 @@ export default function Home() {
 
           {/* Left Side */}
           <div className="lg:w-1/2 flex flex-col justify-center">
+
+          
             <div className="text-4xl md:text-6xl font-extrabold leading-tight text-white min-h-[180px]">
               <Typewriter
                 onInit={(typewriter) => {
@@ -89,25 +94,18 @@ export default function Home() {
               />
             </div>
 
+          
             <p className="text-gray-300 mt-6 text-lg leading-8 max-w-xl">
               Get real-time updates across Technology, Business, Sports, Health,
               and Entertainment. Built with modern technologies for speed,
               clarity, and a premium reading experience.
-              <div className="mt-8 ml-5 flex gap-5 flex-wrap">
-              <Button
-                size="lg"
-                className="bg-cyan-400 hover:bg-cyan-300 text-black font-semibold rounded-full !px-7 !mx-74 " 
-                onClick={() => navigate("/register")}
-              >
-                Get Started
-              </Button>
-            </div>
             </p>
 
             
+
           </div>
 
-          {/* ✅ Right Side — 3 Feature Cards (scrolling panel ki jagah) */}
+          {/* Right Side — 3 Feature Cards */}
           <div className="lg:w-[480px] w-full flex flex-col gap-5 ml-auto mt-10">
             {featureCards.map((card, index) => (
               <motion.div
@@ -136,6 +134,6 @@ export default function Home() {
 
         </div>
       </div>
-    </div>
+    </div></>
   );
 }
