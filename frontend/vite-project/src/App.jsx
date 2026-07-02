@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import CatCursor from "../src/components/ui/CatCursor";
 
-import TopBar from "./components/layout/Topbar";
+import TopBar from "./components/layout/TopBar";
 import Masthead from "./components/layout/Masthead";
 import Footer from "./components/layout/Footer";
 import NewsGrid from "./components/news/NewsGrid";

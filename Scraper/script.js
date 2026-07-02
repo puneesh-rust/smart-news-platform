@@ -28,13 +28,15 @@ function delay(ms) {
 }
 
 async function saveArticle(article) {
-  const { title, link, date, category, description, source } = article;
+  const { title, link, date, category, description, source, content } = article;
+
   try {
     await pool.query(
-      `INSERT INTO headlines (title, link, date, category, description, source)
-       VALUES ($1,$2,$3,$4,$5,$6)
+      `INSERT INTO headlines 
+       (title, link, date, category, description, source, content)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)
        ON CONFLICT (link) DO NOTHING`,
-      [title, link, date, category, description, source]
+      [title, link, date, category, description, source, content]
     );
   } catch (err) {
     console.error("DB insert error:", err.message);
@@ -82,15 +84,22 @@ async function scrapeIndianExpress(baseUrl, category, maxPages = 1) {
           });
 
           const metadata = await articlePage.evaluate(() => {
-            const dateMeta = document.querySelector(
-              'meta[property="article:published_time"]'
-            );
-            const descMeta = document.querySelector('meta[name="description"]');
-            return {
-              publishDate: dateMeta ? dateMeta.content : null,
-              description: descMeta ? descMeta.content : "",
-            };
-          });
+  const dateMeta = document.querySelector(
+    'meta[property="article:published_time"]'
+  );
+
+  const descMeta = document.querySelector('meta[name="description"]');
+
+  // ✅ Extract full article content
+  const paragraphs = Array.from(document.querySelectorAll("p"));
+  const content = paragraphs.map(p => p.innerText).join(" ");
+
+  return {
+    publishDate: dateMeta ? dateMeta.content : null,
+    description: descMeta ? descMeta.content : "",
+    content: content
+  };
+});
 
           await articlePage.close();
 
@@ -99,13 +108,14 @@ async function scrapeIndianExpress(baseUrl, category, maxPages = 1) {
             : new Date().toISOString();
 
           await saveArticle({
-            title: item.title,
-            link: item.link,
-            date: publishDate,
-            category,
-            description: metadata.description,
-            source: "Indian Express",
-          });
+  title: item.title,
+  link: item.link,
+  date: publishDate,
+  category,
+  description: metadata.description,
+  content: metadata.content, // ✅ IMPORTANT
+  source: "Indian Express",
+});
 
           console.log(`✅ Saved: ${item.title}`);
         } catch (err) {

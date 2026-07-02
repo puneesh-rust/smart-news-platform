@@ -27,7 +27,6 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
       className="group flex flex-col rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1.5"
       style={{
         background: "var(--surface)",
-
         border: "1px solid var(--border)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
@@ -42,7 +41,7 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
         e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.3)";
       }}
     >
-      {/* Top glow line */}
+      {/* Top glow */}
       <div
         style={{
           height: "2px",
@@ -65,6 +64,7 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
           >
             {news.category || "General"}
           </span>
+
           {news.published_at && (
             <span className="text-[10px] font-mono text-gray-600">
               {timeAgo(news.published_at)}
@@ -73,16 +73,15 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
         </div>
 
         {/* Title */}
-        {/* Title */}
-<h3
-  className="text-[15px] font-bold leading-snug line-clamp-3 transition-colors duration-200"
-  style={{
-    fontFamily: "'Space Grotesk', Georgia, serif",
-    color: "var(--text-1)",  // ✅ CSS variable use karo
-  }}
->
-  {news.title}
-</h3>
+        <h3
+          className="text-[15px] font-bold leading-snug line-clamp-3"
+          style={{
+            fontFamily: "'Space Grotesk', Georgia, serif",
+            color: "var(--text-1)",
+          }}
+        >
+          {news.title}
+        </h3>
 
         {/* Description */}
         {news.description && (
@@ -91,6 +90,31 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
           </p>
         )}
 
+        {/* 🔥 AI SUMMARY */}
+        <div
+          className="text-[12px] leading-relaxed line-clamp-3"
+          style={{
+            background: "rgba(139,92,246,0.05)",
+            padding: "8px",
+            borderRadius: "8px",
+            border: "1px solid rgba(139,92,246,0.15)",
+          }}
+        >
+          {news.summary ? (
+            <>
+              <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-purple-400 mb-1">
+                <Sparkles className="w-3 h-3" />
+                AI Summary
+              </div>
+              {news.summary}
+            </>
+          ) : (
+            <span className="text-gray-600 text-[11px]">
+              ⏳ Generating AI summary...
+            </span>
+          )}
+        </div>
+
         {/* Footer */}
         <div
           className="flex items-center justify-between pt-3 mt-auto"
@@ -98,7 +122,7 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
         >
           <div className="flex gap-2">
 
-            {/* Similar Button */}
+            {/* Similar */}
             <button
               onClick={() => onRecommend?.(news.title)}
               className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full text-gray-500 transition-all duration-200 hover:text-purple-300 hover:-translate-y-0.5"
@@ -106,20 +130,12 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
                 background: "rgba(255,255,255,0.04)",
                 border: "1px solid rgba(255,255,255,0.07)",
               }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = "rgba(139,92,246,0.12)";
-                e.currentTarget.style.borderColor = "rgba(139,92,246,0.3)";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-              }}
             >
               <Sparkles className="w-3 h-3" />
               Similar
             </button>
 
-            {/* Save Button */}
+            {/* Save */}
             <button
               onClick={() => onSave?.(news)}
               className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full transition-all duration-200 hover:-translate-y-0.5"
@@ -145,7 +161,7 @@ const NewsCard = ({ news, onSave, onRecommend, isSaved }) => {
 
           </div>
 
-          {/* Read Link */}
+          {/* Read */}
           {articleLink && (
             <a
               href={articleLink}
